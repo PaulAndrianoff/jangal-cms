@@ -117,4 +117,59 @@ class ThemeManager
             File::put($path, json_encode($manifest, JSON_PRETTY_PRINT));
         }
     }
+
+    // 1. Uploader un thème (fichier ZIP)
+    public function uploadTheme($file)
+    {
+        $zip = new \ZipArchive();
+        if ($zip->open($file->getRealPath()) === TRUE) {
+            $zip->extractTo($this->themesPath);
+            $zip->close();
+            return true;
+        }
+        return false;
+    }
+
+    // 2. Supprimer un thème
+    public function deleteTheme($slug)
+    {
+        $activeTheme = $this->getActiveTheme();
+        $themes = $this->getAvailableThemes();
+
+        // Sécurité 1 : Impossible de supprimer le thème actif
+        if ($activeTheme && $activeTheme->name === $slug) {
+            return "Impossible de supprimer le thème actif. Activez-en un autre d'abord.";
+        }
+
+        // Sécurité 2 : Impossible de supprimer s'il ne reste qu'un seul thème
+        if (count($themes) <= 1) {
+            return "Impossible de supprimer le dernier thème disponible.";
+        }
+
+        $themePath = $this->themesPath . '/' . $slug;
+        if (File::exists($themePath)) {
+            File::deleteDirectory($themePath);
+            return true;
+        }
+        return "Thème introuvable sur le disque.";
+    }
+
+    // 3. Modifier les infos du thème (theme.json)
+    public function updateThemeManifest($slug, $data)
+    {
+        $path = $this->themesPath . '/' . $slug . '/theme.json';
+        if (File::exists($path)) {
+            $manifest = json_decode(File::get($path), true);
+
+            // On met à jour uniquement les champs modifiables
+            $manifest['name'] = $data['name'];
+            $manifest['description'] = $data['description'] ?? '';
+            $manifest['version'] = $data['version'];
+            $manifest['author'] = $data['author'] ?? '';
+
+            File::put($path, json_encode($manifest, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+            return true;
+        }
+        return false;
+    }
 }
