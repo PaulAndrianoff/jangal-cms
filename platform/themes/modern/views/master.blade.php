@@ -15,7 +15,7 @@
         }
 
         .navbar-custom {
-            background-color: #1a202c;
+            background-color: #550000;
         }
 
         .navbar-custom .navbar-brand,

@@ -4,6 +4,6 @@
     "version": "2.0.0",
     "author": "Ton Nom",
     "options": {
-        "navbar_color": "#1a202c"
+        "navbar_color": "#888888"
     }
 }

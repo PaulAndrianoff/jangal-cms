@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Core\Themes\ThemeManager;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\DB;
 
 class ThemeController extends Controller
@@ -76,5 +77,67 @@ class ThemeController extends Controller
 
         // Si ce n'est pas 'true', c'est un message d'erreur de sécurité
         return back()->with('error', $result);
+    }
+
+    public function files($slug)
+    {
+        $themePath = base_path('platform/themes/' . $slug);
+        if (!File::exists($themePath)) {
+            return back()->with('error', 'Dossier du thème introuvable.');
+        }
+
+        // On récupère tous les fichiers récursivement
+        $files = File::allFiles($themePath);
+
+        // On formate les chemins pour l'affichage
+        $fileList = [];
+        foreach ($files as $file) {
+            $relativePath = str_replace($themePath . DIRECTORY_SEPARATOR, '', $file->getPathname());
+            $fileList[] = str_replace('\\', '/', $relativePath);
+        }
+
+        sort($fileList);
+
+        return view('admin.themes.files', compact('slug', 'fileList'));
+    }
+
+    // 2. Afficher l'éditeur de fichier
+    public function editFile($slug, Request $request)
+    {
+        $file = $request->query('file');
+        $themePath = realpath(base_path('platform/themes/' . $slug));
+        $filePath = realpath($themePath . '/' . $file);
+
+        // SÉCURITÉ : Vérifier que le fichier demandé est bien DANS le dossier du thème
+        if (!str_starts_with($filePath, $themePath)) {
+            abort(403, 'Tentative de sortie du dossier du thème bloquée.');
+        }
+
+        if (!File::exists($filePath)) {
+            return back()->with('error', 'Fichier introuvable.');
+        }
+
+        $content = File::get($filePath);
+        $extension = pathinfo($filePath, PATHINFO_EXTENSION);
+
+        return view('admin.themes.editor', compact('slug', 'file', 'content', 'extension'));
+    }
+
+    // 3. Sauvegarder les modifications
+    public function updateFile(Request $request, $slug)
+    {
+        $file = $request->file;
+        $themePath = realpath(base_path('platform/themes/' . $slug));
+        $filePath = realpath($themePath . '/' . $file);
+
+        // SÉCURITÉ : Même vérification
+        if (!str_starts_with($filePath, $themePath)) {
+            abort(403, 'Tentative de modification hors du thème bloquée.');
+        }
+
+        File::put($filePath, $request->content);
+
+        return redirect()->route('admin.themes.editFile', ['slug' => $slug, 'file' => $file])
+            ->with('success', 'Fichier modifié avec succès !');
     }
 }

@@ -18,7 +18,7 @@ Route::get('/post/{post:slug}', [FrontendController::class, 'show'])->name('post
 Route::get('/page/{page:slug}', [FrontendController::class, 'showPage'])->name('page.show');
 
 // --- ROUTES ADMIN ---
-Route::prefix('admin')->middleware('auth')->group(function () {
+Route::prefix('admin')->middleware(['auth', 'is_admin'])->group(function () {
     Route::get('/', [AdminController::class, 'dashboard'])->name('admin.dashboard');
     Route::post('/plugins/{slug}/toggle', [AdminController::class, 'togglePlugin'])->name('admin.plugins.toggle');
     Route::post('/themes/{slug}/activate', [AdminController::class, 'activateTheme'])->name('admin.themes.activate');
@@ -44,4 +44,9 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     Route::get('/themes/{slug}/edit', [\App\Http\Controllers\Admin\ThemeController::class, 'edit'])->name('admin.themes.edit');
     Route::put('/themes/{slug}', [\App\Http\Controllers\Admin\ThemeController::class, 'update'])->name('admin.themes.update');
     Route::delete('/themes/{slug}', [\App\Http\Controllers\Admin\ThemeController::class, 'destroy'])->name('admin.themes.destroy');
+    
+    // Édition des fichiers du thème
+    Route::get('/themes/{slug}/files', [\App\Http\Controllers\Admin\ThemeController::class, 'files'])->name('admin.themes.files');
+    Route::get('/themes/{slug}/files/edit', [\App\Http\Controllers\Admin\ThemeController::class, 'editFile'])->name('admin.themes.editFile');
+    Route::post('/themes/{slug}/files/update', [\App\Http\Controllers\Admin\ThemeController::class, 'updateFile'])->name('admin.themes.updateFile');
 });
