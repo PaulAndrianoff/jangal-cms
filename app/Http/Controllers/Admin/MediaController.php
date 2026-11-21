@@ -26,7 +26,7 @@ class MediaController extends Controller
         $file = $request->file('file');
         $originalName = $file->getClientOriginalName();
         $fileName = time() . '_' . Str::slug(pathinfo($originalName, PATHINFO_FILENAME)) . '.' . $file->getClientOriginalExtension();
-        
+
         $path = $file->storeAs('media', $fileName, 'public');
 
         Media::create([
@@ -69,5 +69,12 @@ class MediaController extends Controller
             return response()->json(['location' => asset('storage/' . $path)]);
         }
         return response()->json(['error' => 'Upload failed'], 400);
+    }
+
+    // Méthode pour récupérer uniquement les images en JSON
+    public function list()
+    {
+        $images = Media::where('mime_type', 'like', 'image/%')->orderBy('created_at', 'desc')->get();
+        return response()->json($images);
     }
 }

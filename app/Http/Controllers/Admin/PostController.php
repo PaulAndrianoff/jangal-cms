@@ -40,16 +40,21 @@ class PostController extends Controller
         // Gestion de l'image de couverture
         if ($request->hasFile('cover')) {
             $data['cover'] = $request->file('cover')->store('covers', 'public');
+        } elseif ($request->filled('cover_media_path')) {
+            // On extrait juste le chemin relatif de l'URL complète
+            $data['cover'] = str_replace('/storage/', '', $request->cover_media_path);
         }
 
         // Gestion des médias (vidéo/pdf)
         if ($request->hasFile('media_file')) {
             $data['media_file'] = $request->file('media_file')->store('media', 'public');
+        } elseif ($request->filled('media_file_path')) {
+            $data['media_file'] = str_replace('/storage/', '', $request->media_file_path);
         }
 
-        $post = Post::create($data); 
+        $post = Post::create($data);
         $this->syncTags($post, $request->tags);
-        
+
         return redirect()->route('admin.posts.index')->with('success', 'Article créé avec succès.');
     }
 
@@ -72,14 +77,20 @@ class PostController extends Controller
 
         // Nouvelle image de couverture
         if ($request->hasFile('cover')) {
-            if ($post->cover) Storage::disk('public')->delete($post->cover); // Supprime l'ancienne
+            if ($post->cover) Storage::disk('public')->delete($post->cover);
             $data['cover'] = $request->file('cover')->store('covers', 'public');
+        } elseif ($request->filled('cover_media_path')) {
+            // Si on choisit une image de la galerie, on NE supprime PAS l'ancienne 
+            // car elle appartient à la médiathèque globale
+            $data['cover'] = str_replace('/storage/', '', $request->cover_media_path);
         }
 
         // Nouveau média
         if ($request->hasFile('media_file')) {
             if ($post->media_file) Storage::disk('public')->delete($post->media_file);
             $data['media_file'] = $request->file('media_file')->store('media', 'public');
+        } elseif ($request->filled('media_file_path')) {
+            $data['media_file'] = str_replace('/storage/', '', $request->media_file_path);
         }
 
         $post->update($data);

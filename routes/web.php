@@ -30,6 +30,7 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     Route::get('/media', [\App\Http\Controllers\Admin\MediaController::class, 'index'])->name('admin.media.index');
     Route::post('/media', [\App\Http\Controllers\Admin\MediaController::class, 'store'])->name('admin.media.store');
     Route::delete('/media/{medium}', [\App\Http\Controllers\Admin\MediaController::class, 'destroy'])->name('admin.media.destroy');
+    Route::get('/media/list', [\App\Http\Controllers\Admin\MediaController::class, 'list'])->name('admin.media.list');
 
     // Route pour l'upload TinyMCE (sans le middleware CSRF pour faciliter l'upload)
     Route::post('/media/upload', [\App\Http\Controllers\Admin\MediaController::class, 'uploadTinyMCE'])->name('admin.media.upload');
