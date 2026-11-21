@@ -1,0 +1,6 @@
+{
+    "name": "Hello World",
+    "description": "Un plugin de test qui ajoute un filtre.",
+    "version": "1.0.0",
+    "author": "Ton Nom"
+}

@@ -1,0 +1,9 @@
+{
+    "name": "Modern Theme",
+    "description": "Un thème professionnel avec navbar personnalisable.",
+    "version": "2.0.0",
+    "author": "Ton Nom",
+    "options": {
+        "navbar_color": "#1a202c"
+    }
+}
