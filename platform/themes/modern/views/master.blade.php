@@ -48,6 +48,22 @@
     <nav class="navbar navbar-expand-lg navbar-custom mb-4">
         <div class="container">
             <a class="navbar-brand fw-bold" href="{{ route('home') }}">⚡ Jangal CMS</a>
+
+            <!-- AJOUTE CE BLOC POUR LE MENU DYNAMIQUE -->
+            <div class="collapse navbar-collapse ms-4">
+                <ul class="navbar-nav me-auto">
+                    @php
+                    $navPages = \App\Models\Page::where('status', 'published')->get();
+                    @endphp
+                    @foreach($navPages as $navPage)
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="{{ route('page.show', $navPage->slug) }}">{{ $navPage->title }}</a>
+                    </li>
+                    @endforeach
+                </ul>
+            </div>
+            <!-- FIN DU BLOC -->
+
             <div class="ms-auto">
                 <a href="/admin" class="btn btn-outline-light btn-sm">Espace Admin</a>
             </div>

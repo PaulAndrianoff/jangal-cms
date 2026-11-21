@@ -44,6 +44,7 @@
             <h4 class="text-center mb-4">Jangal CMS</h4>
             <a href="{{ route('admin.dashboard') }}" class="active">Tableau de bord</a>
             <a href="{{ route('admin.posts.index') }}">Articles</a>
+            <a href="{{ route('admin.pages.index') }}">Pages</a>
             <a href="{{ route('admin.users.index') }}">Gestion des utilisateurs</a>
             <a href="/" target="_blank">Voir le site ↗</a>
 
