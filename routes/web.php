@@ -5,8 +5,9 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\PostController;
-use App\Http\Controllers\Admin\PageController; // <-- Vérifie que c'est importé
+use App\Http\Controllers\Admin\PageController;
 use App\Http\Controllers\FrontendController;
+use App\Http\Controllers\InstallController;
 
 Auth::routes();
 
@@ -44,9 +45,19 @@ Route::prefix('admin')->middleware(['auth', 'is_admin'])->group(function () {
     Route::get('/themes/{slug}/edit', [\App\Http\Controllers\Admin\ThemeController::class, 'edit'])->name('admin.themes.edit');
     Route::put('/themes/{slug}', [\App\Http\Controllers\Admin\ThemeController::class, 'update'])->name('admin.themes.update');
     Route::delete('/themes/{slug}', [\App\Http\Controllers\Admin\ThemeController::class, 'destroy'])->name('admin.themes.destroy');
-    
+
     // Édition des fichiers du thème
     Route::get('/themes/{slug}/files', [\App\Http\Controllers\Admin\ThemeController::class, 'files'])->name('admin.themes.files');
     Route::get('/themes/{slug}/files/edit', [\App\Http\Controllers\Admin\ThemeController::class, 'editFile'])->name('admin.themes.editFile');
     Route::post('/themes/{slug}/files/update', [\App\Http\Controllers\Admin\ThemeController::class, 'updateFile'])->name('admin.themes.updateFile');
+});
+
+// Routes d'installation
+Route::middleware([\App\Http\Middleware\RedirectIfInstalled::class])->group(function () {
+    Route::get('/install', [InstallController::class, 'index'])->name('install.index');
+    Route::get('/install/database', [InstallController::class, 'database'])->name('install.database');
+    Route::post('/install/database', [InstallController::class, 'storeDatabase'])->name('install.database.store');
+    Route::get('/install/admin', [InstallController::class, 'admin'])->name('install.admin');
+    Route::post('/install/admin', [InstallController::class, 'storeAdmin'])->name('install.admin.store');
+    Route::get('/install/finish', [InstallController::class, 'finish'])->name('install.finish');
 });
