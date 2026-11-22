@@ -44,38 +44,29 @@
 </head>
 
 <body>
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-custom mb-4">
-        <div class="container">
-            <a class="navbar-brand fw-bold" href="{{ route('home') }}">⚡ Jangal CMS</a>
+    <!-- Zone Header -->
+    <header>
+        {!! render_widget_area('header') !!}
+    </header>
 
-            <!-- AJOUTE CE BLOC POUR LE MENU DYNAMIQUE -->
-            <div class="collapse navbar-collapse ms-4">
-                <ul class="navbar-nav me-auto">
-                    @php
-                    $navPages = \App\Models\Page::where('status', 'published')->get();
-                    @endphp
-                    @foreach($navPages as $navPage)
-                    <li class="nav-item">
-                        <a class="nav-link text-white" href="{{ route('page.show', $navPage->slug) }}">{{ $navPage->title }}</a>
-                    </li>
-                    @endforeach
-                </ul>
-            </div>
-            <!-- FIN DU BLOC -->
+    <div class="container mt-4">
+        <div class="row">
+            <!-- Contenu Principal -->
+            <main class="col-md-8">
+                @yield('content')
+            </main>
 
-            <div class="ms-auto">
-                <a href="/admin" class="btn btn-outline-light btn-sm">Espace Admin</a>
-            </div>
+            <!-- Zone Sidebar (Colonne de droite) -->
+            <aside class="col-md-4">
+                {!! render_widget_area('sidebar') !!}
+            </aside>
         </div>
-    </nav>
+    </div>
 
-    <!-- Contenu de la page -->
-    @yield('content')
-
-    <!-- Footer -->
+    <!-- Zone Footer -->
     <footer class="bg-dark text-white text-center py-4 mt-5">
-        <p class="mb-0">© {{ date('Y') }} Jangal CMS. Tous droits réservés.</p>
+        {!! render_widget_area('footer') !!}
+        <p class="mb-0 mt-3">© {{ date('Y') }} Jangal CMS.</p>
     </footer>
 </body>
 

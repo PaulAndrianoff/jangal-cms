@@ -57,3 +57,10 @@ if (!function_exists('has_filter')) {
         return Hook::hasFilter($hook, $id);
     }
 }
+
+if (!function_exists('render_widget_area')) {
+    function render_widget_area($area)
+    {
+        return app('widget')->renderArea($area);
+    }
+}

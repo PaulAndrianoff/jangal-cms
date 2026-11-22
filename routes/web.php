@@ -17,6 +17,7 @@ Route::get('/post/{post:slug}', [FrontendController::class, 'show'])->name('post
 
 // LA ROUTE MANQUANTE EST ICI :
 Route::get('/page/{page:slug}', [FrontendController::class, 'showPage'])->name('page.show');
+Route::get('/tag/{tag:slug}', [App\Http\Controllers\FrontendController::class, 'tag'])->name('tag.show');
 
 // --- ROUTES ADMIN ---
 Route::prefix('admin')->middleware(['auth', 'is_admin'])->group(function () {
@@ -50,6 +51,11 @@ Route::prefix('admin')->middleware(['auth', 'is_admin'])->group(function () {
     Route::get('/themes/{slug}/files', [\App\Http\Controllers\Admin\ThemeController::class, 'files'])->name('admin.themes.files');
     Route::get('/themes/{slug}/files/edit', [\App\Http\Controllers\Admin\ThemeController::class, 'editFile'])->name('admin.themes.editFile');
     Route::post('/themes/{slug}/files/update', [\App\Http\Controllers\Admin\ThemeController::class, 'updateFile'])->name('admin.themes.updateFile');
+
+    // Gestion des widgets
+    Route::get('/widgets', [\App\Http\Controllers\Admin\WidgetController::class, 'index'])->name('admin.widgets.index');
+    Route::post('/widgets', [\App\Http\Controllers\Admin\WidgetController::class, 'store'])->name('admin.widgets.store');
+    Route::delete('/widgets/{widget}', [\App\Http\Controllers\Admin\WidgetController::class, 'destroy'])->name('admin.widgets.destroy');
 });
 
 // Routes d'installation

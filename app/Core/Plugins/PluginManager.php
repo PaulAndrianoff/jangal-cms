@@ -41,27 +41,6 @@ class PluginManager
     }
 
     /**
-     * Charge dynamiquement les ServiceProviders des plugins actifs
-     */
-    public function loadActivePlugins()
-    {
-        // On vérifie si la table existe (pour éviter les crashs si on lance les tests)
-        try {
-            $activePlugins = DB::table('plugins')->where('is_active', true)->pluck('name')->toArray();
-        } catch (\Exception $e) {
-            return; // La base de données n'est pas prête
-        }
-
-        foreach ($activePlugins as $slug) {
-            $providerClass = "Platform\\Plugins\\" . str_replace('-', '', ucwords($slug, '-')) . "\\Providers\\PluginServiceProvider";
-            
-            if (class_exists($providerClass)) {
-                app()->register($providerClass);
-            }
-        }
-    }
-
-    /**
      * Active un plugin dans la base de données
      */
     public function activate($slug)

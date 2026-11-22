@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Post;
 use App\Models\Page;
+use App\Models\Tag;
 use Illuminate\Http\Request;
 
 class FrontendController extends Controller
@@ -32,5 +33,11 @@ class FrontendController extends Controller
         }
 
         return view('theme::page', compact('page'));
+    }
+
+    public function tag(Tag $tag)
+    {
+        $posts = $tag->posts()->where('status', 'published')->paginate(9);
+        return view('theme::tag', compact('posts', 'tag'));
     }
 }
