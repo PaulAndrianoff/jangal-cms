@@ -5,6 +5,7 @@ namespace App\Core\Plugins;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\DB;
 use ZipArchive;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\ServiceProvider;
 
 class PluginManager
@@ -46,10 +47,22 @@ class PluginManager
      */
     public function activate($slug)
     {
+        // 1. On active le plugin en BDD
         DB::table('plugins')->updateOrInsert(
             ['name' => $slug],
             ['is_active' => true, 'updated_at' => now()]
         );
+
+        // 2. On vérifie si le plugin a des migrations à exécuter
+        $migrationsPath = $this->pluginsPath . '/' . $slug . '/database/migrations';
+
+        if (File::exists($migrationsPath)) {
+            // On demande à Laravel d'exécuter uniquement les migrations de ce dossier
+            Artisan::call('migrate', [
+                '--path' => 'platform/plugins/' . $slug . '/database/migrations',
+                '--force' => true, // Obligatoire en production
+            ]);
+        }
     }
 
     /**
@@ -96,10 +109,19 @@ class PluginManager
         $pluginPath = $this->pluginsPath . '/' . $slug;
 
         if (File::exists($pluginPath)) {
-            // On supprime du disque
+            // 1. On exécute la migration "down" pour supprimer la table
+            $migrationsPath = $pluginPath . '/database/migrations';
+            if (File::exists($migrationsPath)) {
+                Artisan::call('migrate:rollback', [
+                    '--path' => 'platform/plugins/' . $slug . '/database/migrations',
+                    '--force' => true,
+                ]);
+            }
+
+            // 2. On supprime les fichiers
             File::deleteDirectory($pluginPath);
 
-            // On supprime de la base de données
+            // 3. On supprime de la base de données
             DB::table('plugins')->where('name', $slug)->delete();
 
             return true;

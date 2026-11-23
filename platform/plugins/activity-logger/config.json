@@ -1,0 +1,7 @@
+{
+    "log_auth": true,
+    "log_posts": true,
+    "log_pages": true,
+    "log_users": true,
+    "log_media": true
+}

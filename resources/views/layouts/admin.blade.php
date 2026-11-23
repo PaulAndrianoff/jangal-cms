@@ -51,6 +51,7 @@
             <a href="{{ route('admin.plugins.index') }}">Plugins</a>
             <a href="{{ route('admin.users.index') }}">Gestion des utilisateurs</a>
             <a href="/" target="_blank">Voir le site ↗</a>
+            {!! do_action('admin_sidebar_links') !!}
 
             <div class="mt-auto pb-4 px-3">
                 <hr class="text-secondary">

@@ -1,0 +1,6 @@
+{
+    "name": "Activity Logger",
+    "description": "Enregistre toutes les actions des administrateurs sur le site.",
+    "version": "1.0.0",
+    "author": "Ton Nom"
+}
