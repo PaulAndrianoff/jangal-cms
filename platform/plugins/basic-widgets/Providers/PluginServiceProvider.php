@@ -14,14 +14,27 @@ class PluginServiceProvider extends ServiceProvider
 
         // 1. WIDGET MENU (Navigation)
         $widgetManager->register('menu', 'Menu de navigation', function ($settings) {
-            $pages = Page::where('status', 'published')->get();
-            $html = '<div class="card mb-4 shadow-sm"><div class="card-body"><ul class="list-unstyled mb-0">';
-            foreach ($pages as $page) {
-                $html .= '<li><a href="' . route('page.show', $page->slug) . '" class="text-decoration-none">' . $page->title . '</a></li>';
+            // On récupère les liens depuis les paramètres, ou un tableau vide
+            $items = $settings['items'] ?? [];
+
+            // Si l'utilisateur n'a rien configuré, on fait le fallback (liste des pages)
+            if (empty($items)) {
+                $pages = \App\Models\Page::where('status', 'published')->get();
+                foreach ($pages as $page) {
+                    $items[] = ['label' => $page->title, 'url' => route('page.show', $page->slug)];
+                }
+            }
+
+            $html = '<div class="card mb-4 shadow-sm"><div class="card-body">';
+            $html .= '<ul class="list-unstyled mb-0">';
+            foreach ($items as $item) {
+                if (!empty($item['label']) && !empty($item['url'])) {
+                    $html .= '<li class="mb-2"><a href="' . $item['url'] . '" class="text-decoration-none text-dark fw-semibold">' . $item['label'] . '</a></li>';
+                }
             }
             $html .= '</ul></div></div>';
             return $html;
-        });
+        }, 'admin.widgets.settings.menu');
 
         // 2. WIDGET TAGS
         $widgetManager->register('tag_cloud', 'Nuage de Tags', function ($settings) {

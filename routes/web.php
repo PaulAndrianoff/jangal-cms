@@ -56,6 +56,10 @@ Route::prefix('admin')->middleware(['auth', 'is_admin'])->group(function () {
     Route::get('/widgets', [\App\Http\Controllers\Admin\WidgetController::class, 'index'])->name('admin.widgets.index');
     Route::post('/widgets', [\App\Http\Controllers\Admin\WidgetController::class, 'store'])->name('admin.widgets.store');
     Route::delete('/widgets/{widget}', [\App\Http\Controllers\Admin\WidgetController::class, 'destroy'])->name('admin.widgets.destroy');
+
+    // Routes pour l'édition des paramètres d'un widget
+    Route::get('/widgets/{widget}/settings', [\App\Http\Controllers\Admin\WidgetController::class, 'edit'])->name('admin.widgets.edit');
+    Route::put('/widgets/{widget}/settings', [\App\Http\Controllers\Admin\WidgetController::class, 'update'])->name('admin.widgets.update');
 });
 
 // Routes d'installation

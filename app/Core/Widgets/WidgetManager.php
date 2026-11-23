@@ -8,12 +8,13 @@ class WidgetManager
 {
     protected $registeredWidgets = [];
 
-    // Permet aux plugins d'enregistrer un widget
-    public function register($type, $name, callable $renderCallback)
+        // Permet aux plugins d'enregistrer un widget
+    public function register($type, $name, callable $renderCallback, $settingsView = null)
     {
         $this->registeredWidgets[$type] = [
             'name' => $name,
-            'render' => $renderCallback
+            'render' => $renderCallback,
+            'settings_view' => $settingsView // <-- Nouveau
         ];
     }
 
