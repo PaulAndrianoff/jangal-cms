@@ -48,6 +48,7 @@
             <a href="{{ route('admin.media.index') }}">Médiathèque</a>
             <a href="{{ route('admin.themes.index') }}">Thèmes</a>
             <a href="{{ route('admin.widgets.index') }}">Widgets</a>
+            <a href="{{ route('admin.plugins.index') }}">Plugins</a>
             <a href="{{ route('admin.users.index') }}">Gestion des utilisateurs</a>
             <a href="/" target="_blank">Voir le site ↗</a>
 

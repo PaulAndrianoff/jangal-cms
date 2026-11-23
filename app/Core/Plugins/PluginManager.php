@@ -4,6 +4,7 @@ namespace App\Core\Plugins;
 
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\DB;
+use ZipArchive;
 use Illuminate\Support\ServiceProvider;
 
 class PluginManager
@@ -57,5 +58,52 @@ class PluginManager
     public function deactivate($slug)
     {
         DB::table('plugins')->where('name', $slug)->update(['is_active' => false]);
+    }
+
+    // Uploader un plugin ZIP
+    public function uploadPlugin($file)
+    {
+        $zip = new ZipArchive();
+        if ($zip->open($file->getRealPath()) === TRUE) {
+            $zip->extractTo($this->pluginsPath);
+            $zip->close();
+            return true;
+        }
+        return false;
+    }
+
+    // Éditer les infos du plugin (plugin.json)
+    public function updatePluginManifest($slug, $data)
+    {
+        $path = $this->pluginsPath . '/' . $slug . '/plugin.json';
+        if (File::exists($path)) {
+            $manifest = json_decode(File::get($path), true);
+
+            $manifest['name'] = $data['name'];
+            $manifest['description'] = $data['description'] ?? '';
+            $manifest['version'] = $data['version'];
+            $manifest['author'] = $data['author'] ?? '';
+
+            File::put($path, json_encode($manifest, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+            return true;
+        }
+        return false;
+    }
+
+    // Supprimer un plugin
+    public function deletePlugin($slug)
+    {
+        $pluginPath = $this->pluginsPath . '/' . $slug;
+
+        if (File::exists($pluginPath)) {
+            // On supprime du disque
+            File::deleteDirectory($pluginPath);
+
+            // On supprime de la base de données
+            DB::table('plugins')->where('name', $slug)->delete();
+
+            return true;
+        }
+        return false;
     }
 }

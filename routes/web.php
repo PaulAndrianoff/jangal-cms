@@ -60,6 +60,14 @@ Route::prefix('admin')->middleware(['auth', 'is_admin'])->group(function () {
     // Routes pour l'édition des paramètres d'un widget
     Route::get('/widgets/{widget}/settings', [\App\Http\Controllers\Admin\WidgetController::class, 'edit'])->name('admin.widgets.edit');
     Route::put('/widgets/{widget}/settings', [\App\Http\Controllers\Admin\WidgetController::class, 'update'])->name('admin.widgets.update');
+
+    // Gestion des plugins
+    Route::get('/plugins', [\App\Http\Controllers\Admin\PluginController::class, 'index'])->name('admin.plugins.index');
+    Route::post('/plugins/upload', [\App\Http\Controllers\Admin\PluginController::class, 'upload'])->name('admin.plugins.upload');
+    Route::get('/plugins/{slug}/edit', [\App\Http\Controllers\Admin\PluginController::class, 'edit'])->name('admin.plugins.edit');
+    Route::put('/plugins/{slug}', [\App\Http\Controllers\Admin\PluginController::class, 'update'])->name('admin.plugins.update');
+    Route::post('/plugins/{slug}/toggle', [\App\Http\Controllers\Admin\PluginController::class, 'toggle'])->name('admin.plugins.toggle');
+    Route::delete('/plugins/{slug}', [\App\Http\Controllers\Admin\PluginController::class, 'destroy'])->name('admin.plugins.destroy');
 });
 
 // Routes d'installation
