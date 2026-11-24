@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Core\Plugins\PluginManager;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 
 class PluginController extends Controller
 {
@@ -78,10 +79,72 @@ class PluginController extends Controller
     {
         // On s'assure qu'il est désactivé avant suppression
         $this->pluginManager->deactivate($slug);
-        
+
         if ($this->pluginManager->deletePlugin($slug)) {
             return back()->with('success', "Plugin [{$slug}] supprimé définitivement.");
         }
         return back()->with('error', "Impossible de supprimer le plugin.");
+    }
+
+    // Afficher l'éditeur JSON
+    public function editJson($slug, Request $request)
+    {
+        $pluginPath = base_path("platform/plugins/{$slug}");
+
+        // Liste tous les fichiers .json à la racine du plugin
+        $jsonFiles = [];
+        foreach (glob($pluginPath . '/*.json') as $file) {
+            $jsonFiles[] = basename($file);
+        }
+
+        if (empty($jsonFiles)) {
+            return back()->with('error', 'Aucun fichier JSON trouvé dans ce plugin.');
+        }
+
+        // Fichier à éditer (par défaut plugin.json)
+        $currentFile = $request->query('file', 'plugin.json');
+
+        // Sécurité : on s'assure que le fichier demandé est bien dans la liste
+        if (!in_array($currentFile, $jsonFiles)) {
+            $currentFile = $jsonFiles[0];
+        }
+
+        $path = $pluginPath . '/' . $currentFile;
+        $content = File::get($path);
+
+        return view('admin.plugins.json', compact('slug', 'jsonFiles', 'currentFile', 'content'));
+    }
+
+    // Sauvegarder le fichier JSON
+    public function updateJson(Request $request, $slug)
+    {
+        $request->validate([
+            'file_name' => 'required|string',
+            'content' => 'required|string'
+        ]);
+
+        $fileName = $request->file_name;
+
+        // Sécurité anti "Directory Traversal" (ex: essayer d'éditer ../../../.env)
+        if (str_contains($fileName, '/') || str_contains($fileName, '\\') || !str_ends_with($fileName, '.json')) {
+            abort(403, 'Nom de fichier invalide.');
+        }
+
+        // Validation de la syntaxe JSON
+        json_decode($request->content);
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            return back()->with('error', 'Erreur de syntaxe JSON : ' . json_last_error_msg() . '. Veuillez corriger avant de sauvegarder.');
+        }
+
+        $path = base_path("platform/plugins/{$slug}/{$fileName}");
+
+        if (!File::exists($path)) {
+            return back()->with('error', 'Fichier introuvable.');
+        }
+
+        File::put($path, $request->content);
+
+        return redirect()->route('admin.plugins.json', ['slug' => $slug, 'file' => $fileName])
+            ->with('success', 'Fichier ' . $fileName . ' mis à jour avec succès !');
     }
 }

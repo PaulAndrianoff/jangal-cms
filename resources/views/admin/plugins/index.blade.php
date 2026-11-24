@@ -45,6 +45,7 @@
                             <td class="text-end">
                                 <!-- Modifier -->
                                 <a href="{{ route('admin.plugins.edit', $plugin['slug']) }}" class="btn btn-sm btn-outline-secondary">Modifier</a>
+                                <a href="{{ route('admin.plugins.json', $plugin['slug']) }}" class="btn btn-sm btn-outline-dark" title="Éditer les fichiers JSON">📝 JSON</a>
 
                                 <!-- Activer / Désactiver -->
                                 <form action="{{ route('admin.plugins.toggle', $plugin['slug']) }}" method="POST" class="d-inline">

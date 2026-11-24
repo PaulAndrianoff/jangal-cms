@@ -12,6 +12,12 @@
         "default": "#4a5568"
     },
     {
+        "name": "alert_color",
+        "label": "Couleur alert",
+        "type": "color",
+        "default": "#888"
+    },
+    {
         "name": "font_family",
         "label": "Police d'écriture",
         "type": "select",

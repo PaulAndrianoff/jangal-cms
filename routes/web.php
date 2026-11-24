@@ -68,6 +68,10 @@ Route::prefix('admin')->middleware(['auth', 'is_admin'])->group(function () {
     Route::put('/plugins/{slug}', [\App\Http\Controllers\Admin\PluginController::class, 'update'])->name('admin.plugins.update');
     Route::post('/plugins/{slug}/toggle', [\App\Http\Controllers\Admin\PluginController::class, 'toggle'])->name('admin.plugins.toggle');
     Route::delete('/plugins/{slug}', [\App\Http\Controllers\Admin\PluginController::class, 'destroy'])->name('admin.plugins.destroy');
+
+    // Éditeur de fichiers JSON
+    Route::get('/plugins/{slug}/json', [\App\Http\Controllers\Admin\PluginController::class, 'editJson'])->name('admin.plugins.json');
+    Route::post('/plugins/{slug}/json', [\App\Http\Controllers\Admin\PluginController::class, 'updateJson'])->name('admin.plugins.json.update');
 });
 
 // Routes d'installation

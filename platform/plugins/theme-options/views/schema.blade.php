@@ -52,16 +52,16 @@
         document.addEventListener('DOMContentLoaded', function() {
             let container = document.getElementById('fields-container');
             let addBtn = document.getElementById('add-field');
-            let count = {{ count($schema) }};
+            let total = {{ count($schema) }};
 
             addBtn.addEventListener('click', function() {
                 let row = document.createElement('div');
                 row.className = 'row mb-2 field-row bg-light p-2 rounded border';
                 row.innerHTML = `
-                    <div class="col-md-3"><input type="text" name="fields[${count}][name]" class="form-control" placeholder="Nom de la variable" required></div>
-                    <div class="col-md-3"><input type="text" name="fields[${count}][label]" class="form-control" placeholder="Label affiché" required></div>
+                    <div class="col-md-3"><input type="text" name="fields[${total}][name]" class="form-control" placeholder="Nom de la variable" required></div>
+                    <div class="col-md-3"><input type="text" name="fields[${total}][label]" class="form-control" placeholder="Label affiché" required></div>
                     <div class="col-md-2">
-                        <select name="fields[${count}][type]" class="form-select">
+                        <select name="fields[${total}][type]" class="form-select">
                             <option value="color">Couleur</option>
                             <option value="text">Texte</option>
                             <option value="textarea">Texte Long</option>
@@ -69,11 +69,11 @@
                             <option value="file">Fichier</option>
                         </select>
                     </div>
-                    <div class="col-md-2"><input type="text" name="fields[${count}][default]" class="form-control" placeholder="Défaut"></div>
+                    <div class="col-md-2"><input type="text" name="fields[${total}][default]" class="form-control" placeholder="Défaut"></div>
                     <div class="col-md-2"><button type="button" class="btn btn-danger w-100 remove-field">Supprimer</button></div>
                 `;
                 container.appendChild(row);
-                count++;
+                total++;
             });
 
             container.addEventListener('click', function(e) {
