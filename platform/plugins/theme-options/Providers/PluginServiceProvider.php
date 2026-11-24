@@ -19,9 +19,9 @@ class PluginServiceProvider extends ServiceProvider
         $config = $this->getJson('config.json');
 
         // 1. Génération dynamique du CSS
-        add_action('theme_head', function() use ($schema, $config) {
+        add_action('theme_head', function () use ($schema, $config) {
             $css = "<style>\n:root {\n";
-            
+
             foreach ($schema as $field) {
                 // On ne génère des variables CSS que pour les couleurs et le texte
                 if (in_array($field['type'], ['color', 'text'])) {
@@ -35,7 +35,7 @@ class PluginServiceProvider extends ServiceProvider
             // Application des polices
             $font = $config['font_family'] ?? "'Segoe UI', sans-serif";
             $css .= "body { font-family: {$font} !important; }\n";
-            
+
             // Application des couleurs aux éléments du thème
             $css .= "
                 .navbar-custom { background-color: var(--primary-color) !important; }
@@ -54,19 +54,23 @@ class PluginServiceProvider extends ServiceProvider
         });
 
         // 2. Affichage du Logo
-        add_action('theme_logo', function() use ($config) {
+        add_action('theme_logo', function () use ($config) {
             if (!empty($config['logo'])) {
-                echo '<img src="'.asset('storage/'.$config['logo']).'" alt="Logo" style="max-height: 40px;">';
+                echo '<img src="' . asset('storage/' . $config['logo']) . '" alt="Logo" style="max-height: 40px;">';
             } else {
                 echo '⚡ Jangal CMS';
             }
         });
 
         // 3. Liens Sidebar
-        add_action('admin_sidebar_links', function() {
+        add_action('admin_sidebar_links', function () {
             if (\Illuminate\Support\Facades\Route::has('admin.theme-options.index')) {
                 $active = request()->routeIs('admin.theme-options.*') ? 'active' : '';
-                echo '<a href="' . route('admin.theme-options.index') . '" class="' . $active . '">🎨 Charte graphique</a>';
+                echo '<li class="nav-item mb-1">
+                        <a href="' . route('admin.theme-options.index') . '" class="nav-link sidebar-link ' . $active . '">
+                            <i class="bi bi-palette"></i> Charte graphique
+                        </a>
+                      </li>';
             }
         });
 

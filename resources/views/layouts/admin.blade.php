@@ -1,143 +1,192 @@
 <!DOCTYPE html>
 <html lang="fr">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Jangal CMS - Administration</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body {
-            background-color: #f8f9fa;
+    
+    <!-- Police Inter (Moderne) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Tabler CSS (Remplace Bootstrap classique) -->
+    <link href="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0-beta19/dist/css/tabler.min.css" rel="stylesheet">
+    
+    <!-- Icônes Bootstrap -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.min.css">
+
+        <style>
+        body { font-family: 'Inter', sans-serif; }
+        .navbar-vertical .navbar-brand { color: white; font-weight: bold; font-size: 1.25rem; }
+        
+        /* --- CORRECTION DE LA COULEUR DES LIENS --- */
+        .navbar-vertical .navbar-nav .nav-link {
+            color: #cbd5e1 !important; /* Gris clair */
+            font-weight: 500;
+            transition: all 0.2s ease;
+            border-radius: 6px;
+            margin-bottom: 2px;
         }
 
-        .sidebar {
-            min-height: 100vh;
-            background-color: #212529;
-            color: white;
-            padding-top: 20px;
+        /* Effet au survol de la souris */
+        .navbar-vertical .navbar-nav .nav-link:hover {
+            color: #ffffff !important;
+            background-color: rgba(255, 255, 255, 0.05);
         }
 
-        .sidebar a {
-            color: #adb5bd;
-            text-decoration: none;
-            padding: 10px 20px;
-            display: block;
+        /* Lien actif (la page en cours) */
+        .navbar-vertical .navbar-nav .nav-link.active {
+            color: #ffffff !important;
+            background-color: rgba(255, 255, 255, 0.1);
+            font-weight: 600;
         }
 
-        .sidebar a:hover {
-            background-color: #343a40;
-            color: white;
+        /* Icônes */
+        .navbar-vertical .navbar-nav .nav-link i { 
+            margin-right: 10px; 
+            font-size: 1.1rem; 
+            color: inherit;
         }
-
-        .sidebar a.active {
-            background-color: #0d6efd;
-            color: white;
+        
+        /* Cartes */
+        .card { 
+            border: none; 
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03); 
+        }
+        
+        /* Badges dans les cartes du dashboard */
+        .avatar { 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            width: 48px; 
+            height: 48px; 
         }
     </style>
 </head>
-
 <body>
-    <div class="d-flex">
-        <!-- Sidebar -->
-        <div class="sidebar col-md-2 d-flex flex-column">
-            <h4 class="text-center mb-4">Jangal CMS</h4>
-            <a href="{{ route('admin.dashboard') }}" class="active">Tableau de bord</a>
-            <a href="{{ route('admin.posts.index') }}">Articles</a>
-            <a href="{{ route('admin.pages.index') }}">Pages</a>
-            <a href="{{ route('admin.media.index') }}">Médiathèque</a>
-            <a href="{{ route('admin.themes.index') }}">Thèmes</a>
-            <a href="{{ route('admin.widgets.index') }}">Widgets</a>
-            <a href="{{ route('admin.plugins.index') }}">Plugins</a>
-            <a href="{{ route('admin.users.index') }}">Gestion des utilisateurs</a>
-            <a href="/" target="_blank">Voir le site ↗</a>
-            {!! do_action('admin_sidebar_links') !!}
+    <div class="page">
+        <!-- SIDEBAR -->
+        <aside class="navbar navbar-vertical navbar-expand-lg navbar-dark" style="background-color: #1a202c;">
+            <div class="container-fluid">
+                <h1 class="navbar-brand navbar-brand-autodark mb-4">
+                    <a href="{{ route('admin.dashboard') }}" class="text-decoration-none text-white d-flex align-items-center gap-2">
+                        <i class="bi bi-lightning-charge-fill text-warning"></i> Jangal CMS
+                    </a>
+                </h1>
+                
+                <div class="collapse navbar-collapse" id="sidebar-menu">
+                    <ul class="navbar-nav pt-lg-3 w-100">
+                        <li class="nav-item mb-1">
+                            <a class="nav-link sidebar-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}" href="{{ route('admin.dashboard') }}">
+                                <i class="bi bi-grid-1x2"></i> Tableau de bord
+                            </a>
+                        </li>
+                        <li class="nav-item mb-1">
+                            <a class="nav-link sidebar-link {{ request()->routeIs('admin.posts.*') ? 'active' : '' }}" href="{{ route('admin.posts.index') }}">
+                                <i class="bi bi-file-earmark-text"></i> Articles
+                            </a>
+                        </li>
+                        <li class="nav-item mb-1">
+                            <a class="nav-link sidebar-link {{ request()->routeIs('admin.pages.*') ? 'active' : '' }}" href="{{ route('admin.pages.index') }}">
+                                <i class="bi bi-layout-text-window"></i> Pages
+                            </a>
+                        </li>
+                        <li class="nav-item mb-1">
+                            <a class="nav-link sidebar-link {{ request()->routeIs('admin.media.*') ? 'active' : '' }}" href="{{ route('admin.media.index') }}">
+                                <i class="bi bi-images"></i> Médiathèque
+                            </a>
+                        </li>
+                        
+                        <hr class="text-secondary my-3">
+                        
+                        <li class="nav-item mb-1">
+                            <a class="nav-link sidebar-link {{ request()->routeIs('admin.themes.*') ? 'active' : '' }}" href="{{ route('admin.themes.index') }}">
+                                <i class="bi bi-palette"></i> Thèmes
+                            </a>
+                        </li>
+                        <li class="nav-item mb-1">
+                            <a class="nav-link sidebar-link {{ request()->routeIs('admin.plugins.*') ? 'active' : '' }}" href="{{ route('admin.plugins.index') }}">
+                                <i class="bi bi-puzzle"></i> Plugins
+                            </a>
+                        </li>
+                        <li class="nav-item mb-1">
+                            <a class="nav-link sidebar-link {{ request()->routeIs('admin.widgets.*') ? 'active' : '' }}" href="{{ route('admin.widgets.index') }}">
+                                <i class="bi bi-layout-sidebar"></i> Widgets
+                            </a>
+                        </li>
 
-            <div class="mt-auto pb-4 px-3">
-                <hr class="text-secondary">
-                <span class="d-block text-light mb-2">👤 {{ Auth::user()->name }}</span>
-                <form method="POST" action="{{ route('logout') }}">
-                    @csrf
-                    <button type="submit" class="btn btn-sm btn-danger w-100">Déconnexion</button>
-                </form>
-            </div>
-        </div>
+                        <hr class="text-secondary my-3">
+                        <!-- HOOK POUR LES PLUGINS (Journal, Charte graphique...) -->
+                        {!! do_action('admin_sidebar_links') !!}
 
-        <!-- Main Content -->
-        <div class="col-md-10 p-4">
-            @if(session('success'))
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                {{ session('success') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-            @endif
+                        <hr class="text-secondary my-3">
 
-            @yield('content')
-        </div>
-    </div>
-
-    <!-- Modale de la Médiathèque -->
-    <div class="modal fade" id="mediaModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-scrollable">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Sélectionner un média</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        <li class="nav-item mb-1">
+                            <a class="nav-link sidebar-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }}" href="{{ route('admin.users.index') }}">
+                                <i class="bi bi-people"></i> Utilisateurs
+                            </a>
+                        </li>
+                        <li class="nav-item mb-1 mt-2">
+                            <a class="nav-link sidebar-link text-info" href="/" target="_blank">
+                                <i class="bi bi-box-arrow-up-right"></i> Voir le site
+                            </a>
+                        </li>
+                    </ul>
                 </div>
-                <div class="modal-body">
-                    <div class="row" id="media-grid">
-                        <!-- Les images seront injectées ici par JavaScript -->
-                        <div class="col-12 text-center text-muted py-4">Chargement des médias...</div>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <div class="page-wrapper">
+            <!-- TOP HEADER -->
+            <header class="navbar navbar-expand-md d-print-none bg-white border-bottom">
+                <div class="container-xl d-flex justify-content-between align-items-center">
+                    <div>
+                        <h2 class="page-title text-dark fw-bold mb-0">@yield('title', 'Administration')</h2>
+                    </div>
+                    <div class="d-flex align-items-center gap-3">
+                        <span class="text-muted small">Connecté en tant que <strong>{{ Auth::user()->name }}</strong></span>
+                        <form method="POST" action="{{ route('logout') }}" class="mb-0">
+                            @csrf
+                            <button type="submit" class="btn btn-sm btn-outline-danger">
+                                <i class="bi bi-box-arrow-right"></i> Déconnexion
+                            </button>
+                        </form>
                     </div>
                 </div>
+            </header>
+
+            <!-- PAGE CONTENT -->
+            <div class="page-body">
+                <div class="container-xl py-4">
+                    @if(session('success'))
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <i class="bi bi-check-circle-fill me-2"></i> {{ session('success') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    @endif
+                    @if(session('error'))
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i> {{ session('error') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    @endif
+
+                    @yield('content')
+                </div>
             </div>
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Tabler JS (Inclut Bootstrap JS) -->
+    <script src="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0-beta19/dist/js/tabler.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/tinymce@6"></script>
-    <!-- Modale de la Médiathèque (déjà existante) -->
-    <!-- ... (ton code de la modale) ... -->
-
-    <script>
-        // Variable globale pour stocker l'action à faire au clic
-        window.mediaModalCallback = null;
-
-        // Fonction globale pour ouvrir la modale avec une action spécifique
-        window.openMediaModal = function(callback) {
-            window.mediaModalCallback = callback;
-            var modal = new bootstrap.Modal(document.getElementById('mediaModal'));
-            modal.show();
-
-            let grid = document.getElementById('media-grid');
-            if (grid.dataset.loaded !== 'true') {
-                fetch('{{ route("admin.media.list") }}')
-                    .then(response => response.json())
-                    .then(data => {
-                        let html = '';
-                        if (data.length === 0) {
-                            html = '<div class="col-12 text-center text-muted py-4">Aucun média trouvé.</div>';
-                        } else {
-                            data.forEach(item => {
-                                let url = '/storage/' + item.path;
-                                html += `
-                                <div class="col-3 mb-3">
-                                    <img src="${url}" 
-                                         style="width:100%; height:120px; object-fit:cover; cursor:pointer; border-radius:5px; border: 2px solid transparent; transition: 0.2s;" 
-                                         onclick="if(window.mediaModalCallback) window.mediaModalCallback('${url}');"
-                                         onmouseover="this.style.borderColor='#0d6efd'"
-                                         onmouseout="this.style.borderColor='transparent'"
-                                         title="${item.name}">
-                                </div>
-                            `;
-                            });
-                        }
-                        grid.innerHTML = html;
-                        grid.dataset.loaded = 'true';
-                    });
-            }
-        };
-    </script>
+    
+    <!-- Ta modale média existante -->
+    <div class="modal fade" id="mediaModal" tabindex="-1" aria-hidden="true">
+        <!-- ... (Garde le code de ta modale média ici) ... -->
+    </div>
 </body>
-
 </html>

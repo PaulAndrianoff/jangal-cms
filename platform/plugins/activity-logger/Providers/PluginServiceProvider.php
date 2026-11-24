@@ -84,10 +84,14 @@ class PluginServiceProvider extends ServiceProvider
         // Chargement des routes du plugin
         $this->loadRoutesFrom(base_path('platform/plugins/activity-logger/routes.php'));
 
-        add_action('admin_sidebar_links', function () {
+        add_action('admin_sidebar_links', function() {
             if (\Illuminate\Support\Facades\Route::has('admin.logs.index')) {
-                $isLogs = request()->routeIs('admin.logs.*') ? 'active' : '';
-                echo '<a href="' . route('admin.logs.index') . '" class="' . $isLogs . '">📝 Journal d\'activité</a>';
+                $active = request()->routeIs('admin.logs.*') ? 'active' : '';
+                echo '<li class="nav-item mb-1">
+                        <a href="' . route('admin.logs.index') . '" class="nav-link sidebar-link ' . $active . '">
+                            <i class="bi bi-journal-text"></i> Journal d\'activité
+                        </a>
+                      </li>';
             }
         });
     }

@@ -26,13 +26,20 @@ class AdminController extends Controller
         $themes = $this->themeManager->getAvailableThemes();
         $activeTheme = $this->themeManager->getActiveTheme();
 
-        return view('admin.dashboard', compact('plugins', 'activePlugins', 'themes', 'activeTheme'));
+        $stats = [
+            'posts' => \App\Models\Post::count(),
+            'pages' => \App\Models\Page::count(),
+            'users' => \App\Models\User::count(),
+            'media' => \App\Models\Media::count(),
+        ];
+
+        return view('admin.dashboard', compact('stats', 'plugins', 'activePlugins', 'themes', 'activeTheme'));
     }
 
     public function togglePlugin($slug)
     {
         $plugin = DB::table('plugins')->where('name', $slug)->first();
-        
+
         if ($plugin && $plugin->is_active) {
             $this->pluginManager->deactivate($slug);
             return back()->with('success', "Plugin [{$slug}] désactivé.");
@@ -48,7 +55,7 @@ class AdminController extends Controller
         return back()->with('success', "Thème [{$slug}] activé.");
     }
 
-        public function users()
+    public function users()
     {
         $users = \App\Models\User::orderBy('created_at', 'desc')->get();
         return view('admin.users', compact('users'));
