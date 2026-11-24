@@ -1,0 +1,37 @@
+[
+    {
+        "name": "primary_color",
+        "label": "Couleur principale",
+        "type": "color",
+        "default": "#1a202c"
+    },
+    {
+        "name": "secondary_color",
+        "label": "Couleur secondaire",
+        "type": "color",
+        "default": "#4a5568"
+    },
+    {
+        "name": "font_family",
+        "label": "Police d'écriture",
+        "type": "select",
+        "options": [
+            "'Segoe UI', sans-serif",
+            "'Helvetica Neue', Arial, sans-serif",
+            "'Times New Roman', serif"
+        ],
+        "default": "'Segoe UI', sans-serif"
+    },
+    {
+        "name": "logo",
+        "label": "Logo personnalisé",
+        "type": "file",
+        "default": null
+    },
+    {
+        "name": "custom_css",
+        "label": "CSS personnalisé",
+        "type": "textarea",
+        "default": ""
+    }
+]
