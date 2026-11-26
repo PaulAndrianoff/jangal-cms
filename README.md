@@ -1,68 +1,90 @@
-# ⚡ Jangal CMS
+# Jangal CMS
 
-**Jangal CMS** est un Système de Gestion de Contenu (CMS) moderne, rapide et hautement extensible, construit sur le framework **Laravel**. Inspiré de WordPress, il a été pensé pour offrir une expérience utilisateur simple tout en offrant aux développeurs une architecture modulaire puissante basée sur un système de "Hooks".
+Jangal CMS est un système de gestion de contenu (CMS) moderne, rapide et hautement extensible, construit sur le framework Laravel.
 
----
+Inspiré de WordPress, il offre une expérience utilisateur simple tout en fournissant aux développeurs une architecture modulaire puissante basée sur un système de hooks et de widgets.
 
-## ✨ Fonctionnalités Principales
+## Fonctionnalités principales
 
-- **Gestion de contenu** : Créez, modifiez et publiez des Articles et des Pages avec un éditeur de texte WYSIWYG intégré (TinyMCE).
-- **Médiathèque (Media Library)** : Uploadez et gérez vos images, vidéos et PDF de manière centralisée. Insérez-les facilement dans vos articles via l'éditeur ou définissez-les comme image de couverture.
-- **Gestion des Utilisateurs** : Système d'authentification complet avec gestion des rôles (Administrateur et Éditeur).
-- **Système de Plugins** : Étendez les fonctionnalités du CMS de manière dynamique sans toucher au code source.
-- **Gestion des Thèmes** : Changez l'apparence de votre site en un clic. L'administration permet d'uploader, modifier et éditer directement le code des thèmes.
-- **Tags** : Organisez vos articles avec un système de mots-clés (relation Many-to-Many).
-- **Sécurité** : Protection des routes d'administration, protection CSRF, et validations strictes des données entrantes.
+- **Gestion de contenu** : créez, modifiez et publiez des articles et des pages avec un éditeur de texte WYSIWYG intégré (TinyMCE).
+- **Médiathèque** : téléversez et gérez vos images, vidéos et PDF de manière centralisée. Insérez-les facilement dans vos articles ou utilisez-les comme image de couverture.
+- **Gestion des utilisateurs** : authentification complète avec gestion des rôles Administrateur et Éditeur.
+- **Système de plugins** : étendez les fonctionnalités du CMS de manière dynamique sans modifier le code source. Le CMS gère le téléversement ZIP, l'activation, l'édition et les migrations automatiques des plugins.
+- **Gestion des thèmes** : changez l'apparence du site en un clic. Téléversez des thèmes, modifiez leurs manifestes et utilisez l'éditeur de code intégré basé sur CodeMirror depuis l'administration.
+- **Système de widgets** : placez des blocs comme Menu, Formulaire, Recherche ou Tags dans différentes zones définies par vos thèmes : Header, Sidebar, Footer.
+- **Charte graphique** : modifiez les couleurs, polices et logos du thème. Les champs du formulaire sont entièrement dynamiques et configurables depuis l'administration.
+- **Journal d'activité** : plugin natif qui trace les actions effectuées dans l'administration par les utilisateurs.
 
----
+## Installation
 
-## 🚀 Installation
-
-L'installation se fait en quelques minutes via un assistant graphique.
+L'installation se fait en quelques minutes grâce à l'assistant graphique intégré.
 
 ### Prérequis
 
-- PHP >= 7.4 (Extensions : PDO, Mbstring, OpenSSL, Tokenizer, XML, Ctype, JSON)
+- PHP >= 7.4
+  - Extensions : PDO, Mbstring, OpenSSL, Tokenizer, XML, Ctype, JSON
 - Composer
-- Un serveur de base de données (MySQL / MariaDB)
-- Un serveur web (Apache, Nginx ou WAMP/XAMPP)
+- Un serveur de base de données : MySQL ou MariaDB
+- Un serveur web : Apache, Nginx ou WAMP/XAMPP
 
-### Étapes d'installation
+### Étapes
 
-1. Clonez le dépôt et installez les dépendances PHP :
-    ```bash
-    composer install
-    ```
+1. Décompressez les fichiers de Jangal CMS à la racine de votre serveur web.
+2. Si le dossier `vendor` n'est pas disponible, ouvrez un terminal et lancez :
 
-Assurez-vous que le dossier storage et bootstrap/cache sont inscriptibles.
-Lancez votre serveur web local (ex: php artisan serve ou WAMP).
-Rendez-vous sur http://localhost:8000/install.
+   ```bash
+   composer install --no-dev --optimize-autoloader
+   ```
 
-Suivez les 3 étapes de l'assistant :
+3. Rendez-vous sur `http://votre-domaine.com/install`.
+4. Suivez les quatre étapes de l'assistant :
+   - Vérification des prérequis serveur.
+   - Configuration de la base de données. Le script peut la créer automatiquement.
+   - Création du compte Administrateur et choix d'installation des données de démonstration.
+   - Installation terminée. Un fichier `storage/installed.lock` est généré pour sécuriser l'installation.
 
-Vérification des prérequis serveur.
-Configuration de la base de données.
+## Distribution du projet
 
-Création de votre compte Administrateur (la base de données et le thème par défaut seront configurés automatiquement).
+Si vous empaquetez le CMS dans un fichier ZIP pour le distribuer, n'incluez pas les éléments suivants :
 
-🔌 Comment créer un Plugin
-Les plugins permettent d'ajouter de nouvelles fonctionnalités (ex: un système de contact, un SEO, etc.). Ils sont stockés dans le dossier platform/plugins/.
+- `vendor/` : le client doit lancer `composer install`
+- `node_modules/`
+- `.env` : contient les identifiants
+- `storage/installed.lock` : permet à l'installateur de se lancer chez le client
+- `storage/logs/*`
+- `storage/framework/cache/*`
+- `storage/framework/views/*`
+- `.git/`
+- `.idea/` ou `.vscode/`
 
-Structure d'un plugin
-Créez un dossier platform/plugins/mon-super-plugin/ contenant :
+## Développement de plugins
 
-plugin.json (Le manifeste) :
+Les plugins permettent d'ajouter de nouvelles fonctionnalités. Ils sont stockés dans `platform/plugins/`.
 
-json
+Un plugin peut créer ses propres tables, les migrer automatiquement et déclarer ses propres routes.
+
+### Structure d'un plugin
+
+Créez un dossier `platform/plugins/mon-super-plugin/` contenant :
+
+#### `plugin.json`
+
+Le manifeste du plugin :
+
+```json
 {
     "name": "Mon Super Plugin",
     "description": "Ajoute des fonctionnalités géniales.",
     "version": "1.0.0",
     "author": "Votre Nom"
 }
-Providers/PluginServiceProvider.php (Le point d'entrée) :
+```
 
-php
+#### `Providers/PluginServiceProvider.php`
+
+Le point d'entrée du plugin :
+
+```php
 <?php
 
 namespace Platform\Plugins\MonSuperPlugin\Providers;
@@ -73,54 +95,67 @@ class PluginServiceProvider extends ServiceProvider
 {
     public function boot()
     {
-        // Utilisez les Hooks pour interagir avec le CMS
-        add_action('admin_dashboard_top', function() {
-            echo '<div class="alert alert-info">Mon plugin est actif !</div>';
-        });
-
-        add_filter('post_content', function($content) {
-            return $content . '<p>Ajouté par mon plugin.</p>';
+        // Utilisez les hooks pour interagir avec le CMS
+        add_action('admin_sidebar_links', function () {
+            echo '<li class="nav-item"><a class="nav-link" href="/admin/mon-plugin">Mon Plugin</a></li>';
         });
     }
 }
-Une fois le dossier créé, allez dans Admin > Tableau de bord pour activer votre plugin.
+```
 
-🎨 Comment créer un Thème
-Les thèmes contrôlent l'apparence de la partie publique du site. Ils sont stockés dans platform/themes/.
+#### `database/migrations/`
 
-Structure d'un thème
-Créez un dossier platform/themes/mon-super-theme/ contenant :
+Ce dossier est optionnel. Ajoutez-y vos fichiers de migration : ils seront exécutés automatiquement lors de l'activation du plugin.
 
-theme.json (Le manifeste) :
+## Développement de thèmes
 
-json
+Les thèmes contrôlent l'apparence de la partie publique. Ils sont stockés dans `platform/themes/`.
+
+### Structure d'un thème
+
+Créez un dossier `platform/themes/mon-super-theme/` contenant :
+
+#### `theme.json`
+
+Le manifeste du thème :
+
+```json
 {
     "name": "Mon Super Thème",
     "description": "Un thème moderne et responsive.",
     "version": "1.0.0",
-    "author": "Votre Nom",
-    "options": {
-        "primary_color": "#0d6efd"
-    }
+    "author": "Votre Nom"
 }
-views/layouts/master.blade.php (Le layout principal) :
+```
 
-html
+#### `views/layouts/master.blade.php`
+
+Le layout principal :
+
+```blade
 <!DOCTYPE html>
 <html>
 <head>
     <title>@yield('title', 'Mon Site')</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Ajoutez vos CSS ici -->
+    {!! do_action('theme_head') !!} <!-- Hook pour le Customizer -->
 </head>
 <body>
-    <header>Mon Menu</header>
+    <header>{!! do_action('theme_logo') !!}</header>
+
     <main>@yield('content')</main>
-    <footer>Mon Footer</footer>
+
+    <!-- Zone de widgets du footer -->
+    <footer>{!! render_widget_area('footer') !!}</footer>
 </body>
 </html>
-views/welcome.blade.php (La page d'accueil) :
+```
 
-blade
+#### `views/welcome.blade.php`
+
+La page d'accueil :
+
+```blade
 @extends('theme::layouts.master')
 
 @section('title', 'Accueil')
@@ -134,16 +169,35 @@ blade
         </article>
     @endforeach
 @endsection
-⚠️ Important : Pour utiliser le layout principal dans vos vues, vous devez toujours utiliser le namespace theme:: (ex: @extends('theme::layouts.master')). Cela permet au CMS d'isoler les vues du thème de celles du noyau Laravel.
-
-Une fois le dossier créé, allez dans Admin > Thèmes pour l'activer.
-
-⚙️ Architecture (Sous le capot)
-Noyau (Core) : Situé dans app/Core/, il gère le chargement dynamique des extensions (plugins et thèmes) sans altérer le code source.
-
-Hooks (Actions & Filtres) : Le CMS intègre un système de Hooks similaire à WordPress (add_action, do_action, add_filter, apply_filters).
-
-Surcharge de vues : Les thèmes peuvent surcharger les vues des plugins en utilisant le dossier views/vendor/.
-
-Installation Lock : Un fichier storage/installed.lock empêche l'accès à l'installateur une fois le CMS configuré.
 ```
+
+> **Important** : pour utiliser le layout principal dans vos vues, vous devez toujours utiliser le namespace `theme::`, par exemple `@extends('theme::layouts.master')`. Cela permet au CMS d'isoler les vues du thème de celles du noyau Laravel.
+
+## Système de widgets
+
+Les widgets sont des blocs de contenu réutilisables, comme les menus, la recherche ou les formulaires. Ils peuvent être placés dans les zones définies par vos thèmes, comme la sidebar ou le footer.
+
+Un widget est enregistré via un plugin dans sa méthode `boot()` :
+
+```php
+app('widget')->register(
+    'mon_widget',
+    'Nom du Widget',
+    function ($settings) {
+        return '<div>Mon contenu de widget personnalisable</div>';
+    },
+    'chemin.vers.vue.de.parametres'
+); // Le quatrième paramètre est optionnel
+```
+
+Pour afficher une zone dans un thème, utilisez le helper suivant :
+
+```blade
+{!! render_widget_area('sidebar') !!}
+```
+
+## Licence
+
+Ce projet est sous licence MIT.
+
+Développé avec ❤️ et Laravel.

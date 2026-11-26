@@ -11,7 +11,6 @@ use App\Core\Themes\ThemeManager;
 
 class InstallController extends Controller
 {
-    // Étape 1 : Vérification des prérequis (extensions PHP, permissions)
     public function index()
     {
         $requirements = [
@@ -25,14 +24,13 @@ class InstallController extends Controller
             'json' => extension_loaded('json'),
             'storage' => is_writable(storage_path()),
             'bootstrap_cache' => is_writable(base_path('bootstrap/cache')),
+            'env_writable' => is_writable(base_path('.env.example')) || is_writable(base_path('.env')),
         ];
 
         $allPassed = !in_array(false, $requirements);
-
         return view('install.step1', compact('requirements', 'allPassed'));
     }
 
-    // Étape 2 : Formulaire de connexion à la base de données
     public function database()
     {
         return view('install.step2');
@@ -48,34 +46,44 @@ class InstallController extends Controller
             'db_password' => 'nullable',
         ]);
 
-        // Test de la connexion
         try {
+            // 1. On se connecte d'abord SANS le nom de la base pour pouvoir la créer
             $pdo = new \PDO(
-                "mysql:host={$request->db_host};port={$request->db_port};dbname={$request->db_name}",
+                "mysql:host={$request->db_host};port={$request->db_port}",
                 $request->db_user,
                 $request->db_password
             );
+            $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+
+            // 2. On vérifie si la base existe, sinon on la crée
+            $stmt = $pdo->query("SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '{$request->db_name}'");
+            if ($stmt->rowCount() == 0) {
+                $pdo->exec("CREATE DATABASE `{$request->db_name}` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
+            }
+
         } catch (\Exception $e) {
-            return back()->with('error', 'Impossible de se connecter à la base de données. Vérifiez vos informations. Erreur : ' . $e->getMessage());
+            return back()->with('error', 'Impossible de se connecter ou de créer la base de données. Vérifiez vos accès. Erreur : ' . $e->getMessage());
         }
 
-        // Si ça marche, on écrit dans le .env
+        // 3. Mise à jour du fichier .env
         $this->updateEnv([
+            'APP_NAME' => '"Jangal CMS"',
+            'APP_ENV' => 'production',
+            'APP_DEBUG' => 'false',
+            'APP_URL' => url('/'),
             'DB_CONNECTION' => 'mysql',
             'DB_HOST' => $request->db_host,
             'DB_PORT' => $request->db_port,
             'DB_DATABASE' => $request->db_name,
             'DB_USERNAME' => $request->db_user,
-            'DB_PASSWORD' => $request->db_password,
+            'DB_PASSWORD' => '"' . $request->db_password . '"',
         ]);
 
-        // On met les infos en session pour l'étape suivante
         session(['install_db' => $request->only('db_host', 'db_port', 'db_name', 'db_user', 'db_password')]);
 
         return redirect()->route('install.admin');
     }
 
-    // Étape 3 : Formulaire de création du compte Admin
     public function admin()
     {
         return view('install.step3');
@@ -87,9 +95,9 @@ class InstallController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255',
             'password' => 'required|min:8|confirmed',
+            'install_demo' => 'nullable|boolean'
         ]);
 
-        // On modifie les variables de config en mémoire pour la migration
         $db = session('install_db');
         config([
             'database.connections.mysql.host' => $db['db_host'],
@@ -99,24 +107,38 @@ class InstallController extends Controller
             'database.connections.mysql.password' => $db['db_password'],
         ]);
 
-        // 1. Lancer les migrations
-        Artisan::call('migrate:fresh', ['--force' => true]);
-
-        // 2. Créer l'utilisateur Admin
-        User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => bcrypt($request->password),
-            'is_admin' => true,
-        ]);
-
-        // 3. Activer le thème par défaut
         try {
-            app(ThemeManager::class)->activate('modern');
-        } catch (\Exception $e) {}
+            // 1. Migrations
+            Artisan::call('migrate:fresh', ['--force' => true]);
+            
+            // 2. Clé d'application
+            Artisan::call('key:generate', ['--force' => true]);
 
-        // 4. Créer le fichier de verrouillage
-        File::put(storage_path('installed.lock'), 'Installed on ' . date('Y-m-d H:i:s'));
+            // 3. Création Admin
+            User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => bcrypt($request->password),
+                'is_admin' => true,
+            ]);
+
+            // 4. Données de démo (si coché)
+            if ($request->has('install_demo')) {
+                Artisan::call('db:seed', ['--class' => 'DemoSeeder', '--force' => true]);
+            } else {
+                // Si pas de démo, on active juste le thème par défaut
+                app(ThemeManager::class)->activate('modern');
+            }
+
+            // 5. Fichier de verrouillage
+            File::put(storage_path('installed.lock'), 'Installed on ' . date('Y-m-d H:i:s'));
+
+            // 6. On vide le cache pour que le nouveau .env soit pris en compte
+            Artisan::call('optimize:clear');
+
+        } catch (\Exception $e) {
+            return back()->with('error', 'Erreur lors de l\'installation : ' . $e->getMessage());
+        }
 
         return redirect()->route('install.finish');
     }
@@ -126,22 +148,32 @@ class InstallController extends Controller
         return view('install.step4');
     }
 
-    // Fonction pour modifier le fichier .env
+    // Fonction robuste pour le .env
     private function updateEnv(array $data)
     {
         $envFile = base_path('.env');
-        if (file_exists($envFile)) {
-            $content = File::get($envFile);
-            foreach ($data as $key => $value) {
-                // Si la clé existe déjà dans le .env, on la remplace
-                if (preg_match("/^{$key}=.*/m", $content)) {
-                    $content = preg_replace("/^{$key}=.*/m", "{$key}=\"{$value}\"", $content);
-                } else {
-                    // Sinon on l'ajoute à la fin
-                    $content .= "\n{$key}=\"{$value}\"";
-                }
+        
+        // Si le .env n'existe pas, on le crée à partir du .env.example
+        if (!file_exists($envFile)) {
+            if (file_exists(base_path('.env.example'))) {
+                copy(base_path('.env.example'), $envFile);
+            } else {
+                File::put($envFile, "");
             }
-            File::put($envFile, $content);
         }
+
+        $content = File::get($envFile);
+        
+        foreach ($data as $key => $value) {
+            // Si la clé existe, on la remplace
+            if (preg_match("/^{$key}=.*/m", $content)) {
+                $content = preg_replace("/^{$key}=.*/m", "{$key}={$value}", $content);
+            } else {
+                // Sinon on l'ajoute
+                $content .= "\n{$key}={$value}";
+            }
+        }
+        
+        File::put($envFile, $content);
     }
 }
