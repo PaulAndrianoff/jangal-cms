@@ -18,6 +18,7 @@ Route::get('/post/{post:slug}', [FrontendController::class, 'show'])->name('post
 // LA ROUTE MANQUANTE EST ICI :
 Route::get('/page/{page:slug}', [FrontendController::class, 'showPage'])->name('page.show');
 Route::get('/tag/{tag:slug}', [App\Http\Controllers\FrontendController::class, 'tag'])->name('tag.show');
+Route::get('/search', [App\Http\Controllers\FrontendController::class, 'search'])->name('search');
 
 // --- ROUTES ADMIN ---
 Route::prefix('admin')->middleware(['auth', 'is_admin'])->group(function () {

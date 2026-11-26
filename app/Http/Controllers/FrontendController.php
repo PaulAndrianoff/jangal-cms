@@ -40,4 +40,16 @@ class FrontendController extends Controller
         $posts = $tag->posts()->where('status', 'published')->paginate(9);
         return view('theme::tag', compact('posts', 'tag'));
     }
+
+    public function search(Request $request)
+    {
+        $query = $request->input('q');
+        $posts = Post::where('status', 'published')
+            ->where(function ($q) use ($query) {
+                $q->where('title', 'like', "%{$query}%")
+                    ->orWhere('content', 'like', "%{$query}%");
+            })->paginate(9);
+
+        return view('theme::search', compact('posts', 'query'));
+    }
 }

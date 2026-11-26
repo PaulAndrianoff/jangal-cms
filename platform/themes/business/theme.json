@@ -1,0 +1,9 @@
+{
+    "name": "Business Pro",
+    "description": "Un thème professionnel pour les entreprises et startups.",
+    "version": "1.0.0",
+    "author": "Jangal CMS",
+    "options": {
+        "primary_color": "#0f172a"
+    }
+}
